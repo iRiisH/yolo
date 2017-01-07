@@ -6,7 +6,9 @@ from scipy.misc import imread, imresize
 if __name__ == '__main__':
     sess = tf.Session()
     imgs = tf.placeholder(tf.float32, [None, 224, 224, 3])
-    vgg = vgg16(imgs, 'vgg16/vgg16_weights.npz', sess)
+    network = vgg16(imgs, 'vgg16/vgg16_weights.npz', sess)
+
+	# TODO modify network in order to implement YOLO neural network
 
     img1 = imread('laska.png', mode='RGB')
     img1 = imresize(img1, (224, 224))
