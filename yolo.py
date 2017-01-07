@@ -14,7 +14,7 @@ class yolonet:
 
     def deleteLayers():
         #TODO
-        return 
+        return
 
     def addLayers(self):
         with tf.name_scope('conv_added1') as scope:
@@ -68,7 +68,8 @@ class yolonet:
             self.fc1 = tf.nn.relu(fc1l)
             self.parameters += [fc1w, fc1b]
 
-        #TODO self.dropout=tf.nn.dropout(self.fc1,)
+        keep_prob = tf.placeholder(float32)
+        self.dropout=tf.nn.dropout(self.fc1,keep_prob)
 
         with tf.name_scope('fc2') as scope:
             shape = int(np.prod(self.dropout.get_shape()[1:]))
