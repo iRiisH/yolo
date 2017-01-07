@@ -18,40 +18,40 @@ class yolonet:
 
     def addLayers(self):
         with tf.name_scope('conv_added1') as scope:
-            kernel = tf.Variable(tf.truncated_normal([3,3,512,512],dtype=float32,
+            kernel = tf.Variable(tf.truncated_normal([3,3,512,1024],dtype=float32,
                                 stddev=1e-1),name='weights')
             conv = tf.nn.conv2d(self.pool5, kernel, [1, 1, 1, 1], padding='SAME')
-            biases = tf.Variable(tf.constant(0.0, shape=[512], dtype=tf.float32),
+            biases = tf.Variable(tf.constant(0.0, shape=[1024], dtype=tf.float32),
                                 trainable=True, name='biases')
             out = tf.nn.bias_add(conv, biases)
             self.conv_added = tf.nn.relu(out,name=scope)
             self.parameters += [kernel, biases]
 
         with tf.name_scope('conv_added2') as scope:
-            kernel = tf.Variable(tf.truncated_normal([3,3,512,512],dtype=float32,
+            kernel = tf.Variable(tf.truncated_normal([3,3,1024,1024],dtype=float32,
                                 stddev=1e-1),name='weights')
             conv = tf.nn.conv2d(self.conv_added1, kernel, [1, 1, 1, 1], padding='SAME')
-            biases = tf.Variable(tf.constant(0.0, shape=[512], dtype=tf.float32),
+            biases = tf.Variable(tf.constant(0.0, shape=[1024], dtype=tf.float32),
                                 trainable=True, name='biases')
             out = tf.nn.bias_add(conv, biases)
             self.conv_added = tf.nn.relu(out,name=scope)
             self.parameters += [kernel, biases]
 
         with tf.name_scope('conv_added3') as scope:
-            kernel = tf.Variable(tf.truncated_normal([3,3,512,512],dtype=float32,
+            kernel = tf.Variable(tf.truncated_normal([3,3,1024,1024],dtype=float32,
                                 stddev=1e-1),name='weights')
             conv = tf.nn.conv2d(self.conv_added2, kernel, [1, 1, 1, 1], padding='SAME')
-            biases = tf.Variable(tf.constant(0.0, shape=[512], dtype=tf.float32),
+            biases = tf.Variable(tf.constant(0.0, shape=[1024], dtype=tf.float32),
                                 trainable=True, name='biases')
             out = tf.nn.bias_add(conv, biases)
             self.conv_added = tf.nn.relu(out,name=scope)
             self.parameters += [kernel, biases]
 
         with tf.name_scope('conv_added4') as scope:
-            kernel = tf.Variable(tf.truncated_normal([3,3,512,512],dtype=float32,
+            kernel = tf.Variable(tf.truncated_normal([3,3,1024,1024],dtype=float32,
                                 stddev=1e-1),name='weights')
             conv = tf.nn.conv2d(self.conv_added3, kernel, [1, 1, 1, 1], padding='SAME')
-            biases = tf.Variable(tf.constant(0.0, shape=[512], dtype=tf.float32),
+            biases = tf.Variable(tf.constant(0.0, shape=[1024], dtype=tf.float32),
                                 trainable=True, name='biases')
             out = tf.nn.bias_add(conv, biases)
             self.conv_added = tf.nn.relu(out,name=scope)
