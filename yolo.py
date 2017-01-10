@@ -9,12 +9,16 @@ class yolonet:
     def __init__(data,vgg16_weights,sess):
         self.data = data
         self.vgg16(data,vvg16_weights,sess)
-        self.deleteLayers()
+        #self.deleteLayers()
         self.addLayers()
 
-    def deleteLayers():
-        #TODO
-        return
+    # No operation available in Tensorflow for this.
+    # My solution:
+    # Do not create the fully-connected layer in vgg16,
+    # and modify the load_weights() function below.
+    # def deleteLayers():
+    #     #TODO
+    #     return
 
     def addLayers(self):
         with tf.name_scope('conv_added1') as scope:
@@ -85,8 +89,8 @@ class yolonet:
     def vgg16(self, imgs, weights=None, sess=None):
         self.imgs = imgs
         self.convlayers()
-        self.fc_layers()
-        self.probs = tf.nn.softmax(self.fc3l)
+        #self.fc_layers()
+        #self.probs = tf.nn.softmax(self.fc3l)
         if weights is not None and sess is not None:
             self.load_weights(weights, sess)
 
@@ -315,10 +319,12 @@ class yolonet:
     def load_weights(self, weight_file, sess):
         weights = np.load(weight_file)
         keys = sorted(weights.keys())
+        length_parameters = len(self.parameters)
         for i, k in enumerate(keys):
             print i, k, np.shape(weights[k])
-            sess.run(self.parameters[i].assign(weights[k]))
-            
+            if(i < length_parameters):
+                sess.run(self.parameters[i].assign(weights[k]))
+
 if __name__ == '__main__':
 
     #new code
