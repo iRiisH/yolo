@@ -9,16 +9,7 @@ class yolonet:
     def __init__(data,vgg16_weights,sess):
         self.data = data
         self.vgg16(data,vvg16_weights,sess)
-        #self.deleteLayers()
         self.addLayers()
-
-    # No operation available in Tensorflow for this.
-    # My solution:
-    # Do not create the fully-connected layer in vgg16,
-    # and modify the load_weights() function below.
-    # def deleteLayers():
-    #     #TODO
-    #     return
 
     def addLayers(self):
         with tf.name_scope('conv_added1') as scope:
@@ -89,11 +80,8 @@ class yolonet:
     def vgg16(self, imgs, weights=None, sess=None):
         self.imgs = imgs
         self.convlayers()
-        #self.fc_layers()
-        #self.probs = tf.nn.softmax(self.fc3l)
         if weights is not None and sess is not None:
             self.load_weights(weights, sess)
-
 
     def convlayers(self):
         self.parameters = []
@@ -280,41 +268,6 @@ class yolonet:
                                strides=[1, 2, 2, 1],
                                padding='SAME',
                                name='pool4')
-
-    def fc_layers(self):
-        # fc1
-        with tf.name_scope('fc1') as scope:
-            shape = int(np.prod(self.pool5.get_shape()[1:]))
-            fc1w = tf.Variable(tf.truncated_normal([shape, 4096],
-                                                         dtype=tf.float32,
-                                                         stddev=1e-1), name='weights')
-            fc1b = tf.Variable(tf.constant(1.0, shape=[4096], dtype=tf.float32),
-                                 trainable=True, name='biases')
-            pool5_flat = tf.reshape(self.pool5, [-1, shape])
-            fc1l = tf.nn.bias_add(tf.matmul(pool5_flat, fc1w), fc1b)
-            self.fc1 = tf.nn.relu(fc1l)
-            self.parameters += [fc1w, fc1b]
-
-        # fc2
-        with tf.name_scope('fc2') as scope:
-            fc2w = tf.Variable(tf.truncated_normal([4096, 4096],
-                                                         dtype=tf.float32,
-                                                         stddev=1e-1), name='weights')
-            fc2b = tf.Variable(tf.constant(1.0, shape=[4096], dtype=tf.float32),
-                                 trainable=True, name='biases')
-            fc2l = tf.nn.bias_add(tf.matmul(self.fc1, fc2w), fc2b)
-            self.fc2 = tf.nn.relu(fc2l)
-            self.parameters += [fc2w, fc2b]
-
-        # fc3
-        with tf.name_scope('fc3') as scope:
-            fc3w = tf.Variable(tf.truncated_normal([4096, 1000],
-                                                         dtype=tf.float32,
-                                                         stddev=1e-1), name='weights')
-            fc3b = tf.Variable(tf.constant(1.0, shape=[1000], dtype=tf.float32),
-                                 trainable=True, name='biases')
-            self.fc3l = tf.nn.bias_add(tf.matmul(self.fc2, fc3w), fc3b)
-            self.parameters += [fc3w, fc3b]
 
     def load_weights(self, weight_file, sess):
         weights = np.load(weight_file)
