@@ -86,10 +86,32 @@ In /net/build.py:
 
 In /darkflow/net/flow.py:
 
-        _save_ckpt (unknown)
+        _save_ckpt (save the result for a certain number of epochs)
 
         train
 
             loss_ph
                 (cannot figure out where it comes from)
-                (placeholder for )
+                (placeholder for "ground truth" loss ?)
+
+            batches
+                (get result from /darkflow/net/yolo/data.py)
+                (calling shuffle())
+                (containing 2 components: a preprocessed image
+                    and ground truth data)
+
+            loss_op: loss function
+
+            for each element in batches
+
+                feed_dict: telling how to fill the placeholders
+
+                fetches: a bunch of operations of the network
+
+                then, run the graph in the session for once
+                    (one step of training is done here)
+
+                cannot figure out what use in training of loss_mva)
+
+In /darkflow/dark/darknet.py
+    
