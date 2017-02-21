@@ -1,0 +1,29 @@
+format of different layer type:
+
+convolutional:
+name_of_layer
+weight_size list
+
+cfg begins by #:
+
+#
+
+input
+input
+224,224
+
+convolutional
+conv1_1
+3,64
+
+convolutional
+conv1_2
+64,64
+
+max_pool
+pool1
+
+
+fully_connected
+
+EOF
