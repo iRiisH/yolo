@@ -2,7 +2,18 @@ format of different layer type:
 
 convolutional:
 name_of_layer
-weight_size list
+output_size
+
+max_pool:
+name_of_layer
+
+fully_connected:
+name_of_layer
+output_size
+
+dropout:
+name_of_layer
+probability_to_keep_active
 
 cfg begins by #:
 
@@ -14,16 +25,97 @@ input
 
 convolutional
 conv1_1
-3,64
+64
 
 convolutional
 conv1_2
-64,64
+64
 
 max_pool
 pool1
 
+convolutional
+conv2_1
+128
+
+convolutional
+conv2_2
+128
+
+max_pool
+pool2
+
+convolutional
+conv3_1
+256
+
+convolutional
+conv3_2
+256
+
+convolutional
+conv3_3
+256
+
+max_pool
+pool3
+
+convolutional
+conv4_1
+512
+
+convolutional
+conv4_2
+512
+
+convolutional
+conv4_3
+512
+
+max_pool
+pool4
+
+convolutional
+conv5_1
+512
+
+convolutional
+conv5_2
+512
+
+convolutional
+conv5_3
+512
+
+max_pool
+pool5
+
+convolutional
+conv_added1
+1024
+
+convolutional
+conv_added2
+1024
+
+convolutional
+conv_added3
+1024
+
+convolutional
+conv_added4
+1024
 
 fully_connected
+fully_connected1
+4096
+
+dropout
+dropout
+0.5
+
+fully_connected
+fully_connected2
+#TODO
 
 EOF
