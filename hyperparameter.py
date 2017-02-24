@@ -12,4 +12,6 @@ def define_flags():
 
     flags.DEFINE_string("number_of_cases", 7, "decide how we divide the pictures")
 
+    flags.DEFINE_string("vgg16_weights_file", "vgg16/vgg16_weights.npz", "path to vgg16 weights file")
+    
     return flags

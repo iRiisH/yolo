@@ -1,4 +1,5 @@
 import tensorflow as tf
+import numpy as np
 
 def input_init(self, name, input_size):
     input_holder = tf.placeholder(
@@ -11,7 +12,7 @@ def conv_layer(self, name, output_size):
     with tf.name_scope(name) as scope:
 
         input_size = int(self.last_output.get_shape()[-1])
-        kernel = tf.Variable(tf.truncated_normal([3,3,input_size,output_size,dtype=float32,
+        kernel = tf.Variable(tf.truncated_normal([3,3,input_size,output_size],dtype=tf.float32,
                             stddev=1e-1),name='weights')
         prod = tf.nn.conv2d(self.last_output, kernel, [1, 1, 1, 1], padding='SAME')
         biases = tf.Variable(tf.constant(0.0, shape=[output_size], dtype=tf.float32),
@@ -29,7 +30,7 @@ def max_pool_layer(self, name):
         ksize = [1, 2, 2, 1],
         strides = [1, 2, 2, 1],
         padding = 'SAME',
-        name = name))
+        name = name)
 
     self.layers[name] = pool
     self.last_output = pool
@@ -49,10 +50,10 @@ def fully_connected_layer(self,name,output_size):
         self.parameters += [weights, biases]
         self.last_output = fully_connected
 
-def dropout_layer(name, keep_prob):
+def dropout_layer(self, name, keep_prob):
     dropout=tf.nn.dropout(self.last_output, keep_prob)
     self.layers[name] = dropout
     self.last_output = dropout
 
-def output_layer(name, ):
+def output_layer(self, name):
     

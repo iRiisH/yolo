@@ -2,7 +2,7 @@
 
 from hyperparameter import define_flags
 
-from yolo import yolonet
+from yolo import yolo
 
 hyperparameters = define_flags().FLAGS
 

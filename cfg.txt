@@ -116,6 +116,6 @@ dropout
 
 fully_connected
 fully_connected2
-#TODO
+1470
 
 EOF

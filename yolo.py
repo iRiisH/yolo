@@ -1,6 +1,31 @@
-from layers import *
+import layers
+import load
+import train
 
 class yolo:
+
+    # to pass the functions in layers.py as its methods
+    input_init = layers.input_init
+    conv_layer = layers.conv_layer
+    max_pool_layer = layers.max_pool_layer
+    fully_connected_layer = layers.fully_connected_layer
+    dropout_layer = layers.dropout_layer
+    output_layer = layers.output_layer
+    
+    # to pass the functions in load.py as its methods
+    loadFromVgg16 = load.loadFromVgg16
+    loadFromPreviousVersion = load.loadFromPreviousVersion
+
+    train = train.train
+
+    # a dict of layers in the network
+    layers = dict()
+
+    # a list of weights and bias
+    parameters = list()
+
+    # a dict of output variables
+    outputs = dict()
 
     def __init__(self,hyperparameters):
 
@@ -16,47 +41,59 @@ class yolo:
 
             self.loadFromVgg16()
 
-        #load from the last trained version
-        else:
-
-            self.loadFromPreviousVersion()
+        # #load from the last trained version
+        # else:
+        #
+        #     self.loadFromPreviousVersion()
 
     def buildnet(self):
+
+        input_init = layers.input_init
+        conv_layer = layers.conv_layer
+        max_pool_layer = layers.max_pool_layer
+        fully_connected_layer = layers.fully_connected_layer
+        dropout_layer = layers.dropout_layer
 
         cfg_address = self.hyperparameters.cfg_address
 
         cfg_file = open(cfg_address, 'r')
 
         #to find the beginning of the cfg
-        while(cfg_file.readline() != "#"):
-            pass
+
+        while(True):
+            if(striped_line(cfg_file) == "#"):
+                break
+
+
 
         layer_type = ""
         layer_name = ""
 
-        while(true):
+        while(True):
 
             #to get rid of the empty line
-            cfg_file.readline()
+            striped_line(cfg_file)
 
             # to note down the length of vgg16 network parameters
             if(layer_name == self.hyperparameters.last_vgg16_layer):
                 self.vgg16_size = len(self.parameters)
 
-            layer_type = cfg_file.readline()
+            layer_type = striped_line(cfg_file)
             if(layer_type == "EOF"):
                 break
 
-            layer_name = cfg.file.readline()
+            layer_name = striped_line(cfg_file)
+
+            print layer_name + ' is being created...'
 
             if(layer_type == "input"):
                 # to convert string to int : map(int, array_of_str)
-                input_size = map(int, cfg_file.readline().strip().split(','))
+                input_size = map(int, striped_line(cfg_file).split(','))
                 self.input_init(layer_name, input_size)
                 continue
 
             if(layer_type == "convolutional"):
-                output_size = int(cfg_file.readline().strip())
+                output_size = int(striped_line(cfg_file))
                 self.conv_layer(layer_name, output_size)
                 continue
 
@@ -65,13 +102,16 @@ class yolo:
                 continue
 
             if(layer_type == "fully_connected"):
-                output_size = int(cfg_file.readline().strip())
+                output_size = int(striped_line(cfg_file))
                 self.fully_connected_layer(layer_name,output_size)
                 continue
 
             if(layer_type == "dropout"):
-                keep_prob = float(cfg_file.readline().strip())
+                keep_prob = float(striped_line(cfg_file))
                 # it depends on whether we are training or predicting
                 if(self.hyperparameters.action == 'train'):
-                    self.dropout_layer(name, keep_prob)
+                    self.dropout_layer(layer_name, keep_prob)
                 continue
+
+def striped_line(file):
+    return file.readline().strip()
