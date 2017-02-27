@@ -10,8 +10,12 @@ def define_flags():
 
     flags.DEFINE_string("action", "train", "to train, to predict, or ?")
 
-    flags.DEFINE_string("number_of_cases", 7, "decide how we divide the pictures")
+    # flags.DEFINE_string("number_of_cases", 7, "decide how we divide the pictures")
 
     flags.DEFINE_string("vgg16_weights_file", "vgg16/vgg16_weights.npz", "path to vgg16 weights file")
-    
+
+    flags.DEFINE_string("batch_size", 64, "the size of batches (the number of pictures taken in each training circle)")
+
+    flags.DEFINE_string("classes_file", "classes_file.txt", "the path to the file that contains classes' names")
+
     return flags

@@ -11,7 +11,7 @@ class yolo:
     fully_connected_layer = layers.fully_connected_layer
     dropout_layer = layers.dropout_layer
     output_layer = layers.output_layer
-    
+
     # to pass the functions in load.py as its methods
     loadFromVgg16 = load.loadFromVgg16
     loadFromPreviousVersion = load.loadFromPreviousVersion
@@ -31,6 +31,8 @@ class yolo:
 
         self.hyperparameters = hyperparameters
 
+        self.getclasses()
+
         self.buildnet()
 
         load_from_vgg16 = self.hyperparameters.load_from_vgg16
@@ -46,6 +48,25 @@ class yolo:
         #
         #     self.loadFromPreviousVersion()
 
+    def getclasses(self):
+
+        path = self.hyperparameters.classes_file
+
+        f = open(path,'r')
+
+        self.classes = list()
+
+        line = ''
+
+        while(True):
+
+            line = f.readline().strip()
+
+            if(not line or line == ''):
+                break
+
+            self.classes.append(line)
+
     def buildnet(self):
 
         input_init = layers.input_init
@@ -59,7 +80,6 @@ class yolo:
         cfg_file = open(cfg_address, 'r')
 
         #to find the beginning of the cfg
-
         while(True):
             if(striped_line(cfg_file) == "#"):
                 break
@@ -80,6 +100,7 @@ class yolo:
 
             layer_type = striped_line(cfg_file)
             if(layer_type == "EOF"):
+                print self.last_output.get_shape()
                 break
 
             layer_name = striped_line(cfg_file)
@@ -111,6 +132,10 @@ class yolo:
                 # it depends on whether we are training or predicting
                 if(self.hyperparameters.action == 'train'):
                     self.dropout_layer(layer_name, keep_prob)
+                continue
+
+            if(layer_type == "output"):
+                self.output_layer(layer_name)
                 continue
 
 def striped_line(file):

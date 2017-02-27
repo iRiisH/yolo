@@ -118,4 +118,7 @@ fully_connected
 fully_connected2
 1470
 
+output
+output
+
 EOF

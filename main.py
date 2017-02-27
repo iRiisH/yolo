@@ -8,6 +8,6 @@ hyperparameters = define_flags().FLAGS
 
 network = yolo(hyperparameters)
 
-network.train()
+# network.train()
 
 # network.predict()

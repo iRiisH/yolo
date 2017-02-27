@@ -2,8 +2,9 @@ import tensorflow as tf
 import numpy as np
 
 def input_init(self, name, input_size):
+    batch_size = self.hyperparameters.batch_size
     input_holder = tf.placeholder(
-        tf.float32, [None, input_size[0], input_size[1], 3])
+        tf.float32, [batch_size, input_size[0], input_size[1], 3])
     self.layers[name] = input_holder
     self.last_output = input_holder
 
@@ -56,4 +57,25 @@ def dropout_layer(self, name, keep_prob):
     self.last_output = dropout
 
 def output_layer(self, name):
-    
+    cases = 7
+    num_classes = 20
+    batch_size = self.hyperparameters.batch_size
+    self.last_output = tf.reshape(self.last_output,shape=[batch_size,cases,cases,30],name=name)
+    self.output = dict()
+
+    def slicing(sliced,begin,length):
+        return tf.slice(sliced,begin=[0,0,0,begin],size=[batch_size,cases,cases,length])
+
+    self.output['coord1'] = slicing(self.last_output,0,4)
+    self.output['coord2'] = slicing(self.last_output,4,4)
+    self.output['iou1'] = slicing(self.last_output,8,1)
+    self.output['iou2'] = slicing(self.last_output,9,1)
+    self.output['prob'] = slicing(self.last_output,10,20)
+    self.output['x1'] = slicing(self.output['coord1'],0,1)
+    self.output['y1'] = slicing(self.output['coord1'],1,1)
+    self.output['w1'] = slicing(self.output['coord1'],2,1)
+    self.output['h1'] = slicing(self.output['coord1'],3,1)
+    self.output['x2'] = slicing(self.output['coord2'],0,1)
+    self.output['y2'] = slicing(self.output['coord2'],1,1)
+    self.output['w2'] = slicing(self.output['coord2'],2,1)
+    self.output['h2'] = slicing(self.output['coord2'],3,1)
