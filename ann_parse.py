@@ -1,9 +1,12 @@
 import os
 import sys
 
+
+# path is the directory containing the .xml & .jpg files
+# classes is the list of the classes used by the network
 def parse_annotation(path, classes):
-	print('Parsing for {} {}'.format(
-			pick, 'exclusively' * int(exclusive)))
+	#print('Parsing for {} {}'.format(
+	#		classes, 'exclusively' * int(exclusive)))
 	def pp(l): # pretty printing
 		for i in l: print('{}: {}'.format(i,l[i]))
 
@@ -16,11 +19,12 @@ def parse_annotation(path, classes):
 	def _int(literal): # for literals supposed to be int
 		return int(float(literal))
 
-	dumps = list()
+	dumps = list() # the result list
 	cur_dir = os.getcwd()
-	os.chdir(ANN)
+	os.chdir(path)
 	annotations = os.listdir('.')
-	annotations = [file for file in annotations if '.xml' in file] # annotations contains the list of .xml files
+	annotations = [file for file in annotations if '.xml' in file]
+	# annotations contains the list of .xml files
 	size = len(os.listdir('.'))
 
 	for i, file in enumerate(annotations):
@@ -38,37 +42,38 @@ def parse_annotation(path, classes):
 		with open(file, 'r') as f:
 			lines = f.readlines()
 		w = h = int()
-		all = current = list()
+		all = current = list() # current is the current object object
 		name = str()
 		obj = False
 		flag = False
 		for i in range(len(lines)):
 			line = lines[i]
 			if '<filename>' in line:
-				jpg = str(parse(line))
+				jpg = str(parse(line)) # image described in the jpg file
 			if '<width>' in line:
 				w = _int(parse(line))
 			if '<height>' in line:
-				h = _int(parse(line))
+				h = _int(parse(line)) # dimensions
 			if '<object>' in line:
 				obj = True
 			if '</object>' in line:
 				obj = False
 			if '<part>' in line:
 				obj = False
+				# object is composed of several subobjects, but they are not taken into account
 			if '</part>' in line:
 				obj = True
 			if not obj: continue
 			if '<name>' in line:
 				if current != list():
-					if current[0] in pick:
-						all += [current]
-					elif exclusive:
-						flag = True
-						break
+					if current[0] in classes:
+						all += [current] # all is the list of the objects contained in the file
+					#elif exclusive: # WHAT IS EXCLUSIVE ?
+					#	flag = True
+					#	break
 				current = list()
 				name = str(parse(line))
-				if name not in pick:
+				if name not in classes:
 					obj = False
 					continue
 				current = [name,None,None,None,None]
@@ -80,21 +85,21 @@ def parse_annotation(path, classes):
 			if xn: current[1] = _int(parse(line))
 			if xx: current[3] = _int(parse(line))
 			if yn: current[2] = _int(parse(line))
-			if yx: current[4] = _int(parse(line))
+			if yx: current[4] = _int(parse(line)) # reads the coordinates of the object
 
-		if flag: continue
-		if current != list() and current[0] in pick:
+		#if flag: continue
+		if current != list() and current[0] in classes:
 			all += [current]
 
 		add = [[jpg, [w, h, all]]]
 		dumps += add
 
-	# gather all stats
+	# gather all stats in the end
 	stat = dict()
 	for dump in dumps:
 		all = dump[1][2]
 		for current in all:
-			if current[0] in pick:
+			if current[0] in classes:
 				if current[0] in stat:
 					stat[current[0]]+=1
 				else:
@@ -107,3 +112,9 @@ def parse_annotation(path, classes):
 
 	os.chdir(cur_dir)
 	return dumps
+
+ann = "./Annotations"
+classes = ["person", "bottle", "car", "dog", "cat"]
+l = parse_annotation (ann, classes)
+#for tab in l :
+#	print (tab)
