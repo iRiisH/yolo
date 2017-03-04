@@ -18,4 +18,6 @@ def define_flags():
 
     flags.DEFINE_string("classes_file", "classes_file.txt", "the path to the file that contains classes' names")
 
+    flags.DEFINE_string("ann_directory", "Annotations", "the path to the file that contains classes' names")
+
     return flags

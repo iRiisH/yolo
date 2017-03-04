@@ -113,8 +113,8 @@ def parse_annotation(path, classes):
 	os.chdir(cur_dir)
 	return dumps
 
-ann = "./Annotations"
-classes = ["person", "bottle", "car", "dog", "cat"]
-l = parse_annotation (ann, classes)
+# ann = "./Annotations"
+# classes = ["person", "bottle", "car", "dog", "cat"]
+# l = parse_annotation (ann, classes)
 #for tab in l :
 #	print (tab)
