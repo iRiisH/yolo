@@ -1,6 +1,7 @@
 import layers
 import load
 import train
+import loss
 
 class yolo:
 
@@ -16,6 +17,7 @@ class yolo:
     loadFromVgg16 = load.loadFromVgg16
     loadFromPreviousVersion = load.loadFromPreviousVersion
 
+    # to pass the function in train.py as its methods
     train = train.train
 
     # a dict of layers in the network
@@ -37,6 +39,7 @@ class yolo:
 
         load_from_vgg16 = self.hyperparameters.load_from_vgg16
 
+        self.defineloss()
         #load weights from vgg16 with random initialisation
         #of the last few layers
         if(load_from_vgg16):
@@ -143,6 +146,14 @@ class yolo:
             if(layer_type == "output"):
                 self.output_layer(layer_name)
                 continue
+
+    def loss(self,):
+
+        gt = dict()
+
+        self.ground_truth = gt
+
+        lc = 
 
 def striped_line(file):
     return file.readline().strip()
