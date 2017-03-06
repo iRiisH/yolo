@@ -115,8 +115,8 @@ dropout
 0.5
 
 fully_connected
-fully_connected2
-1470
+fully_connected_out
+5
 
 output
 output

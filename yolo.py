@@ -123,8 +123,14 @@ class yolo:
                 continue
 
             if(layer_type == "fully_connected"):
-                output_size = int(striped_line(cfg_file))
-                self.fully_connected_layer(layer_name,output_size)
+				if layer_name == "fully_connected_out" :
+					S = self.hyperparameters.S
+					B = self.hyperparameters.B
+					nClasses = len(self.classes)
+					output_size =  S * S * (nClasses + B * int(striped_line(cfg_file)))
+				else :
+					output_size = int(striped_line(cfg_file))
+				self.fully_connected_layer(layer_name,output_size)
                 continue
 
             if(layer_type == "dropout"):
