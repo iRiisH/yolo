@@ -1,5 +1,6 @@
 import tensorflow as tf
 import numpy as np
+from helper import slicing
 
 def input_init(self, name, input_size):
     batch_size = self.hyperparameters.batch_size
@@ -79,3 +80,6 @@ def output_layer(self, name):
     self.output['y2'] = slicing(self.output['coord2'],1,1)
     self.output['w2'] = slicing(self.output['coord2'],2,1)
     self.output['h2'] = slicing(self.output['coord2'],3,1)
+
+    print 'x1 shape:' + str(self.output['x1'].get_shape())
+    print 'prob shape:' + str(self.output['prob'].get_shape())

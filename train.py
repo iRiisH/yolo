@@ -4,7 +4,7 @@ def train(self):
 
     ann = parse_annotation(self.hyperparameters.ann_directory, self.classes)
 
-    images = f()
+    # images = f()
 
-    
+
     pass

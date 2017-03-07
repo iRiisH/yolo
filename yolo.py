@@ -1,7 +1,8 @@
+import tensorflow as tf
 import layers
 import load
 import train
-import loss
+from helper import slicing
 
 class yolo:
 
@@ -126,14 +127,14 @@ class yolo:
                 continue
 
             if(layer_type == "fully_connected"):
-				if layer_name == "fully_connected_out" :
-					S = self.hyperparameters.S
-					B = self.hyperparameters.B
-					nClasses = len(self.classes)
-					output_size =  S * S * (nClasses + B * int(striped_line(cfg_file)))
-				else :
-					output_size = int(striped_line(cfg_file))
-				self.fully_connected_layer(layer_name,output_size)
+                if layer_name == "fully_connected_out" :
+                    S = self.hyperparameters.S
+                    B = self.hyperparameters.B
+                    nClasses = len(self.classes)
+                    output_size =  S * S * (nClasses + B * int(striped_line(cfg_file)))
+                else :
+                    output_size = int(striped_line(cfg_file))
+                self.fully_connected_layer(layer_name,output_size)
                 continue
 
             if(layer_type == "dropout"):
@@ -147,13 +148,27 @@ class yolo:
                 self.output_layer(layer_name)
                 continue
 
-    def loss(self,):
+    def defineloss(self,):
 
-        gt = dict()
-
-        self.ground_truth = gt
-
-        lc = 
+        pass
+        # gt = dict()
+        #
+        # self.ground_truth = gt
+        #
+        # lobj = self.hyperparameters.object_scale
+        # lnoobj = self.hyperparameters.noobject_scale
+        # lcoord = self.hyperparameters.coord_scale
+        # lclass = self.hyperparameters.class_scale
+        #
+        # S = self.hyperparameters.S
+        # batch_size = self.hyperparameters.batch_size
+        # num_classes = len(self.classes)
+        #
+        # gt['prob'] = tf.placeholder(tf.float32,shape=(batch_size,S,S,num_classes))
+        # gt['hasObject'] = tf.placeholder()
+        # gt['hasClass'] = tf.placeholder()
+        # gt['coord'] = tf.placeholder(tf.float32,shape=(batch_size,S,S,8))
+        # gt[]
 
 def striped_line(file):
     return file.readline().strip()
