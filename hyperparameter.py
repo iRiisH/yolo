@@ -21,10 +21,10 @@ def define_flags():
     flags.DEFINE_string("ann_directory", "Annotations", "the path to the file that contains classes' names")
 
     # loss constants
-    flags.DEFINE_string ("object_scale", 5, "" )
-    flags.DEFINE_string ("noobject_scale", 1, "")
-    flags.DEFINE_string ("class_scale", 1, "")
-    flags.DEFINE_string("coord_scale", 1, "")
+    flags.DEFINE_string ("object_scale", 5.0, "" )
+    flags.DEFINE_string ("noobject_scale", 1.0, "")
+    flags.DEFINE_string ("class_scale", 1.0, "")
+    flags.DEFINE_string("coord_scale", 1.0, "")
 
     #
     # flags.DEFINE_string ("absolute", 1, "")

@@ -104,7 +104,6 @@ class yolo:
 
             layer_type = striped_line(cfg_file)
             if(layer_type == "EOF"):
-                print self.last_output.get_shape()
                 break
 
             layer_name = striped_line(cfg_file)
@@ -151,24 +150,84 @@ class yolo:
     def defineloss(self,):
 
         pass
-        # gt = dict()
-        #
-        # self.ground_truth = gt
-        #
-        # lobj = self.hyperparameters.object_scale
-        # lnoobj = self.hyperparameters.noobject_scale
-        # lcoord = self.hyperparameters.coord_scale
-        # lclass = self.hyperparameters.class_scale
-        #
-        # S = self.hyperparameters.S
-        # batch_size = self.hyperparameters.batch_size
-        # num_classes = len(self.classes)
-        #
-        # gt['prob'] = tf.placeholder(tf.float32,shape=(batch_size,S,S,num_classes))
-        # gt['hasObject'] = tf.placeholder()
-        # gt['hasClass'] = tf.placeholder()
-        # gt['coord'] = tf.placeholder(tf.float32,shape=(batch_size,S,S,8))
-        # gt[]
+        gt = dict()
+
+        self.ground_truth = gt
+
+        lobj = self.hyperparameters.object_scale
+        lnoobj = self.hyperparameters.noobject_scale
+        lcoord = self.hyperparameters.coord_scale
+        lclass = self.hyperparameters.class_scale
+
+        S = self.hyperparameters.S
+        batch_size = self.hyperparameters.batch_size
+        num_classes = len(self.classes)
+
+        def slicing(sliced,begin,length):
+            return tf.slice(sliced,begin=[0,0,0,begin],size=[batch_size,S,S,length])
+
+        gt['prob'] = tf.placeholder(tf.float32,shape=(batch_size,S,S,num_classes))
+        gt['hasObject'] = tf.placeholder(tf.float32,shape=(batch_size,S,S,1))
+        gt['coord'] = tf.placeholder(tf.float32,shape=(batch_size,S,S,4))
+        gt['IOU'] = tf.placeholder(tf.float32,shape=(batch_size,S,S,1))
+        gt['x'] = slicing(gt['coord'],0,1)
+        gt['y'] = slicing(gt['coord'],1,1)
+        gt['w'] = slicing(gt['coord'],2,1)
+        gt['h'] = slicing(gt['coord'],3,1)
+
+        # calculate intersection surface of two predictions
+        ot = self.output
+
+        up = tf.minimum(ot['x1']+ot['w1']/2,gt['x']+gt['w']/2)
+        down = tf.maximum(ot['x1']-ot['w1']/2,gt['x']-gt['w']/2)
+        left = tf.maximum(ot['y1']-ot['w1']/2,gt['y']-gt['w']/2)
+        right = tf.minimum(ot['y1']+ot['w1']/2,gt['x']+gt['w']/2)
+        area1 = tf.mul(tf.maximum(up-down,0),tf.maximum(right-left,0))
+
+        up = tf.minimum(ot['x2']+ot['w2']/2,gt['x']+gt['w']/2)
+        down = tf.maximum(ot['x2']-ot['w2']/2,gt['x']-gt['w']/2)
+        left = tf.maximum(ot['y2']-ot['w2']/2,gt['y']-gt['w']/2)
+        right = tf.minimum(ot['y2']+ot['w2']/2,gt['x']+gt['w']/2)
+        area2 = tf.mul(tf.maximum(up-down,0),tf.maximum(right-left,0))
+
+        # indicatrices 1 i j
+        isResponsible1 = tf.to_float(tf.greater(area1,area2))
+        isResponsible2 = 1.0-isResponsible1
+
+        # first and second terms
+        coordsquare1 = tf.square(ot['x1']-gt['x'])+tf.square(ot['y1']-gt['y'])
+        coordsquare2 = tf.square(ot['x2']-gt['x'])+tf.square(ot['y2']-gt['y'])
+        sizeRootSquare1 = tf.square(tf.sqrt(ot['w1'])-tf.sqrt(gt['w']))\
+            +tf.square(tf.sqrt(ot['h1'])-tf.sqrt(gt['y']))
+        sizeRootSquare2 = tf.square(tf.sqrt(ot['w2'])-tf.sqrt(gt['w']))\
+            +tf.square(tf.sqrt(ot['h2'])-tf.sqrt(gt['y']))
+        term12 = tf.mul(lcoord,tf.reduce_sum(\
+            tf.mul(isResponsible1,coordsquare1+sizeRootSquare1)\
+            +tf.mul(isResponsible2,coordsquare2+sizeRootSquare2)\
+            ,[1,2]))
+
+        # C square
+        IOU1 = tf.truediv(area1,tf.mul(ot['w1'],ot['h1'])+tf.mul(gt['w'],gt['h'])-area1)
+        Csquare1 = tf.square(ot['C1']-tf.mul(gt['hasObject'],IOU1))
+        IOU2 = tf.truediv(area2,tf.mul(ot['w2'],ot['h2'])+tf.mul(gt['w'],gt['h'])-area2)
+        Csquare2 = tf.square(ot['C2']-tf.mul(gt['hasObject'],IOU2))
+
+        # third and fourth terms
+        term34 = tf.reduce_sum(\
+            tf.mul(lobj,tf.mul(gt['hasObject'],tf.mul(isResponsible1,Csquare1)\
+            +tf.mul(isResponsible2,Csquare2)))\
+            +tf.mul(lnoobj,tf.mul(1-gt['hasObject'],tf.mul(isResponsible1,Csquare1)\
+            +tf.mul(isResponsible2,Csquare2)))\
+            ,[1,2])
+
+        # last term
+        probsquare = tf.square(ot['prob']-gt['prob'])
+        term5 = tf.reduce_sum(\
+                    tf.mul(gt['hasObject']\
+                        ,tf.reduce_sum(probsquare,3,keep_dims=True))
+                ,[1,2])
+
+        self.loss = tf.reduce_sum(term12 + term34 + term5,1)
 
 def striped_line(file):
     return file.readline().strip()
