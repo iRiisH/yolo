@@ -19,7 +19,8 @@ def define_flags():
     flags.DEFINE_string("vgg16_weights_file", "vgg16/vgg16_weights.npz", "path to vgg16 weights file")
     flags.DEFINE_string("classes_file", "classes_file.txt", "the path to the file that contains classes' names")
     flags.DEFINE_string("ann_directory", "Annotations", "the path to the file that contains classes' names")
-
+    flags.DEFINE_string("ann_parsed_file", "ann_parsed_file", "the path to the file that contains ann_parsed")
+    
     # loss constants
     flags.DEFINE_string ("object_scale", 5.0, "" )
     flags.DEFINE_string ("noobject_scale", 1.0, "")

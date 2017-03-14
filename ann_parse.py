@@ -4,7 +4,31 @@ import sys
 
 # path is the directory containing the .xml & .jpg files
 # classes is the list of the classes used by the network
-def parse_annotation(path, classes):
+def parse_annotation(self, path, classes):
+
+	ann_parsed_file = self.hyperparameters.ann_parsed_file
+
+	if(os.path.isfile(ann_parsed_file)):
+		with open(ann_parsed_file,'r') as f:
+			dumps = list()
+			curdump = list()
+			for line in f:
+				info = line.strip().split(' ')
+				if(info[0]=='#'):
+					dumps.append(curdump)
+					curdump = list()
+					continue
+				if(len(info)==1):
+					curdump.append(info[0])
+					continue
+				if(len(info)==2):
+					curdump.append([int(info[0]),int(info[1]),[]])
+				if(len(info)==5):
+					curdump[1][2].append([info[0],int(info[1]),\
+						int(info[2]),int(info[3]),int(info[4])])
+		return dumps
+
+
 	#print('Parsing for {} {}'.format(
 	#		classes, 'exclusively' * int(exclusive)))
 	def pp(l): # pretty printing
@@ -111,6 +135,19 @@ def parse_annotation(path, classes):
 	print('Dataset size: {}'.format(len(dumps)))
 
 	os.chdir(cur_dir)
+
+	f = open(ann_parsed_file,'w')
+
+	for pack in dumps:
+
+		f.write(pack[0]+'\n')
+		f.write(str(pack[1][0])+' '+str(pack[1][1])+'\n')
+
+		for obj in pack[1][2]:
+			f.write(obj[0]+' '+str(obj[1])+' '\
+				+str(obj[2])+' '+str(obj[3])+' '+str(obj[4])+'\n')
+
+		f.write('#'+'\n')
 	return dumps
 
 # ann = "./Annotations"

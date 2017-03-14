@@ -1,10 +1,11 @@
-from ann_parse import parse_annotation
+import ann_parse
 
 def train(self):
 
-    ann = parse_annotation(self.hyperparameters.ann_directory, self.classes)
+    self.ann = self.parse_annotation(self.hyperparameters.ann_directory, self.classes)
 
-    # images = f()
+    print self.ann[1]
 
+    # input_package = data_reader()
 
     pass

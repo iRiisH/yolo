@@ -2,6 +2,7 @@ import tensorflow as tf
 import layers
 import load
 import train
+import ann_parse
 from helper import slicing
 
 class yolo:
@@ -21,6 +22,9 @@ class yolo:
     # to pass the function in train.py as its methods
     train = train.train
 
+    # function in ann_parse
+    parse_annotation = ann_parse.parse_annotation
+    
     # a dict of layers in the network
     layers = dict()
 
