@@ -1,11 +1,8 @@
-import ann_parse
-
 def train(self):
 
     self.ann = self.parse_annotation(self.hyperparameters.ann_directory, self.classes)
 
-    print self.ann[1]
+    input_packs = self.read_data()
 
-    # input_package = data_reader()
-
-    pass
+    for i,current_pack in enumerate(input_packs):
+        pass

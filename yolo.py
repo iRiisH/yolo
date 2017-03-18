@@ -3,6 +3,7 @@ import layers
 import load
 import train
 import ann_parse
+import data_reader
 from helper import slicing
 
 class yolo:
@@ -24,6 +25,10 @@ class yolo:
 
     # function in ann_parse
     parse_annotation = ann_parse.parse_annotation
+
+    # function in data_reader
+    read_data = data_reader.read_data
+    get_image_data = data_reader.get_image_data
     
     # a dict of layers in the network
     layers = dict()
