@@ -6,7 +6,7 @@ def define_flags():
     flags.DEFINE_boolean ("load_from_vgg16", True, "decide whether load from vgg16 model or previously trained model")
     flags.DEFINE_string ("action", "train", "to train, to predict, or ?")
 	flags.DEFINE_string("load", "", "how to initialize the net? Either from .weights or a checkpoint, or even from scratch")
-	flags.DEFINE_string("load", "", "how to initialize the net? Either from .weights or a checkpoint, or even from scratch")
+	flags.DEFINE_integer("save", 2000, "save checkpoint every ? training examples")
 	flags.DEFINE_float("lr", 1e-5, "learning rate")
 	
     # output layer's name
