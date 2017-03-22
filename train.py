@@ -1,3 +1,5 @@
+from save import _save_ckpt
+
 def train(self):
 	loss_ph = self.placeholders
 	profile = list ()
