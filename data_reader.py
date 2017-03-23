@@ -50,13 +50,10 @@ def get_image_data(self, chunk):
     returns value for placeholders of net's
     input & loss layer correspond to this chunk
     """
-    # meta = self.meta
-    # S, B = meta['side'], meta['num']
-    # C, labels = meta['classes'], meta['labels']
-    S = self.hyperparameters.S
-    B = self.hyperparameters.B
-    C = len(self.classes)
-    classes = self.classes
+
+    meta = self.meta
+    S, B = meta['side'], meta['num']
+    C, labels = meta['classes'], meta['labels']
 
     image_directory = self.hyperparameters.image_directory
     # preprocess
