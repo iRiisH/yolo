@@ -13,8 +13,10 @@ def read_data(self):
     epoch = self.hyperparameters.epoch
 
     print('Dataset of {} instance(s)'.format(size))
-    # if batch > size: self.FLAGS.batch = batch = size
+    if batch > size: self.FLAGS.batch = batch = size
     batch_per_epoch = int(size / batch)
+
+    print("batch_per_epoch"+str(batch_per_epoch))
 
     for i in range(epoch):
         shuffle_idx = perm(np.arange(size))
@@ -24,7 +26,7 @@ def read_data(self):
             feed_batch = dict()
 
             for j in range(b*batch, b*batch+batch):
-                train_instance = data[shuffle_idx[j]]
+                train_instance = ann[shuffle_idx[j]]
                 inp, new_feed = self.get_image_data(train_instance)
 
                 if inp is None: continue
@@ -45,23 +47,23 @@ def read_data(self):
 
 
 def get_image_data(self, chunk):
+
     """
     Takes a chunk of parsed annotations
     returns value for placeholders of net's
     input & loss layer correspond to this chunk
     """
-
-    meta = self.meta
-    S, B = meta['side'], meta['num']
-    C, labels = meta['classes'], meta['labels']
+    S, B, C = self.hyperparameters.S, self.hyperparameters.B, len(self.classes)
+    labels = self.classes
 
     image_directory = self.hyperparameters.image_directory
+
     # preprocess
     jpg = chunk[0]; w, h, allobj_ = chunk[1]
     allobj = deepcopy(allobj_)
     path = os.path.join(image_directory, jpg)
-    img = self.preprocess(path, allobj)
-
+    # img = self.preprocess(path, allobj)
+    img = 0
     # Calculate regression target
     cellx = 1. * w / S
     celly = 1. * h / S

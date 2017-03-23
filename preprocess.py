@@ -38,6 +38,13 @@ def _fix(obj, dims, scale, offs):
         obj[i] = int(obj[i] * scale - off)
         obj[i] = max(min(obj[i], dim), 0)
 
+def resize_input(self, im):
+    h, w, c = self.input_size
+    imsz = cv2.resize(im, (w, h))
+    imsz = imsz / 255.
+    imsz = imsz[:,:,::-1]
+    return imsz
+
 def imcv2_recolor(im, a = .1):
     t = [np.random.uniform()]
     t += [np.random.uniform()]

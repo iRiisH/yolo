@@ -1,4 +1,5 @@
 import tensorflow as tf
+import tensorflow.contrib.slim as slim
 
 def defineloss(self, net_out):
     """
@@ -25,10 +26,10 @@ def defineloss(self, net_out):
     # S, B, C = m['side'], m['num'], m['classes']
     # SS = S * S # number of grid cells
 
-    print('{} loss hyper-parameters:'.format(m['model']))
-    print('\tside    = {}'.format(m['side']))
-    print('\tbox     = {}'.format(m['num']))
-    print('\tclasses = {}'.format(m['classes']))
+    print('{} loss hyper-parameters:'.format('yolo'))
+    print('\tside    = {}'.format(S))
+    print('\tbox     = {}'.format(B))
+    print('\tclasses = {}'.format(C))
     print('\tscales  = {}'.format([sprob, sconf, snoob, scoor]))
 
     size1 = [None, SS, C]
@@ -64,17 +65,18 @@ def defineloss(self, net_out):
     intersect_botright = tf.minimum(ceil , _botright)
     intersect_wh = intersect_botright - intersect_upleft
     intersect_wh = tf.maximum(intersect_wh, 0.0)
-    intersect = tf.multiply(intersect_wh[:,:,:,0], intersect_wh[:,:,:,1])
+    intersect = tf.mul(intersect_wh[:,:,:,0], intersect_wh[:,:,:,1])
 
     # calculate the best IOU, set 0.0 confidence for worse boxes
     iou = tf.truediv(intersect, _areas + area_pred - intersect)
     best_box = tf.equal(iou, tf.reduce_max(iou, [2], True))
     best_box = tf.to_float(best_box)
-    confs = tf.multiply(best_box, _confs)
+    confs = tf.mul(best_box, _confs)
+    print(confs.get_shape())
 
     # take care of the weight terms
     conid = snoob * (1. - confs) + sconf * confs
-    weight_coo = tf.concat(4 * [tf.expand_dims(confs, -1)], 3)
+    weight_coo = tf.concat(3, 4 * [tf.expand_dims(confs, -1)])
     cooid = scoor * weight_coo
     proid = sprob * _proid
 
@@ -86,12 +88,12 @@ def defineloss(self, net_out):
     coord = slim.flatten(_coord)
     cooid = slim.flatten(cooid)
 
-    self.fetch += [probs, confs, conid, cooid, proid]
-    true = tf.concat([probs, confs, coord], 1)
-    wght = tf.concat([proid, conid, cooid], 1)
+    # self.fetch += [probs, confs, conid, cooid, proid]
+    true = tf.concat(1,[probs, confs, coord])
+    wght = tf.concat(1,[proid, conid, cooid])
 
-    print('Building {} loss'.format(m['model']))
+    # print('Building {} loss'.format(m['model']))
     loss = tf.pow(net_out - true, 2)
-    loss = tf.multiply(loss, wght)
+    loss = tf.mul(loss, wght)
     loss = tf.reduce_sum(loss, 1)
     self.loss = .5 * tf.reduce_mean(loss)

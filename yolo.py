@@ -6,7 +6,7 @@ import train
 import ann_parse
 import loss
 import data_reader
-import preprocess
+# import preprocess
 
 from helper import slicing
 
@@ -41,7 +41,7 @@ class yolo:
     get_image_data = data_reader.get_image_data
 
     # pass preprocess
-    preprocess = preprocess.preprocess
+    # preprocess = preprocess.preprocess
 
     # a dict of layers in the network
     layers = dict()
@@ -60,7 +60,7 @@ class yolo:
 
         self.buildnet()
 
-        # self.definetrain()
+        self.definetrain()
 
         load_from_vgg16 = self.hyperparameters.load_from_vgg16
 
@@ -134,7 +134,7 @@ class yolo:
             if(layer_type == "input"):
                 # to convert string to int : map(int, array_of_str)
                 self.input_size = map(int, striped_line(cfg_file).split(','))
-                self.input_init(layer_name, input_size)
+                self.input_init(layer_name, self.input_size)
                 continue
 
             if(layer_type == "convolutional"):
@@ -172,9 +172,10 @@ class yolo:
 
         trainer = self.hyperparameters.training_method
         learning_rate = self.hyperparameters.learning_rate
+        self.get_training_methods_set()
 
         # TODO
-        # self.defineloss(self.out)
+        self.defineloss(self.output)
         optimizer = self.training_methods[trainer](learning_rate)
         gradients = optimizer.compute_gradients(self.loss)
         self.train_op = optimizer.apply_gradients(gradients)

@@ -62,8 +62,9 @@ def output_layer(self, name):
     B = self.hyperparameters.B
     num_classes = len(self.classes)
     batch_size = self.hyperparameters.batch_size
+    self.output = self.last_output
     print self.last_output.get_shape()
-    self.last_output = tf.reshape(self.last_output,shape=[batch_size,S,S,30],name=name)
+    # self.last_output = tf.reshape(self.last_output,shape=[batch_size,S,S,30],name=name)
     # # self.output = dict()
     #
     # def slicing(sliced,begin,length):
