@@ -1,9 +1,13 @@
 import tensorflow as tf
 import layers
 import load
+import training_method
 import train
 import ann_parse
+import loss
 import data_reader
+import preprocess
+
 from helper import slicing
 
 class yolo:
@@ -23,13 +27,22 @@ class yolo:
     # to pass the function in train.py as its methods
     train = train.train
 
+    # to pass the loss function in loss.py
+    defineloss = loss.defineloss
+
+    # pass traing methods getter
+    get_training_methods_set = training_method.get_training_methods_set
+
     # function in ann_parse
     parse_annotation = ann_parse.parse_annotation
 
     # function in data_reader
     read_data = data_reader.read_data
     get_image_data = data_reader.get_image_data
-    
+
+    # pass preprocess
+    preprocess = preprocess.preprocess
+
     # a dict of layers in the network
     layers = dict()
 
@@ -47,9 +60,10 @@ class yolo:
 
         self.buildnet()
 
+        # self.definetrain()
+
         load_from_vgg16 = self.hyperparameters.load_from_vgg16
 
-        self.defineloss()
         #load weights from vgg16 with random initialisation
         #of the last few layers
         if(load_from_vgg16):
@@ -97,8 +111,6 @@ class yolo:
             if(striped_line(cfg_file) == "#"):
                 break
 
-
-
         layer_type = ""
         layer_name = ""
 
@@ -121,7 +133,7 @@ class yolo:
 
             if(layer_type == "input"):
                 # to convert string to int : map(int, array_of_str)
-                input_size = map(int, striped_line(cfg_file).split(','))
+                self.input_size = map(int, striped_line(cfg_file).split(','))
                 self.input_init(layer_name, input_size)
                 continue
 
@@ -156,87 +168,16 @@ class yolo:
                 self.output_layer(layer_name)
                 continue
 
-    def defineloss(self,):
+    def definetrain(self):
 
-        pass
-        gt = dict()
+        trainer = self.hyperparameters.training_method
+        learning_rate = self.hyperparameters.learning_rate
 
-        self.ground_truth = gt
-
-        lobj = self.hyperparameters.object_scale
-        lnoobj = self.hyperparameters.noobject_scale
-        lcoord = self.hyperparameters.coord_scale
-        lclass = self.hyperparameters.class_scale
-
-        S = self.hyperparameters.S
-        batch_size = self.hyperparameters.batch_size
-        num_classes = len(self.classes)
-
-        def slicing(sliced,begin,length):
-            return tf.slice(sliced,begin=[0,0,0,begin],size=[batch_size,S,S,length])
-
-        gt['prob'] = tf.placeholder(tf.float32,shape=(batch_size,S,S,num_classes))
-        gt['hasObject'] = tf.placeholder(tf.float32,shape=(batch_size,S,S,1))
-        gt['coord'] = tf.placeholder(tf.float32,shape=(batch_size,S,S,4))
-        gt['IOU'] = tf.placeholder(tf.float32,shape=(batch_size,S,S,1))
-        gt['x'] = slicing(gt['coord'],0,1)
-        gt['y'] = slicing(gt['coord'],1,1)
-        gt['w'] = slicing(gt['coord'],2,1)
-        gt['h'] = slicing(gt['coord'],3,1)
-
-        # calculate intersection surface of two predictions
-        ot = self.output
-
-        up = tf.minimum(ot['x1']+ot['w1']/2,gt['x']+gt['w']/2)
-        down = tf.maximum(ot['x1']-ot['w1']/2,gt['x']-gt['w']/2)
-        left = tf.maximum(ot['y1']-ot['w1']/2,gt['y']-gt['w']/2)
-        right = tf.minimum(ot['y1']+ot['w1']/2,gt['x']+gt['w']/2)
-        area1 = tf.mul(tf.maximum(up-down,0),tf.maximum(right-left,0))
-
-        up = tf.minimum(ot['x2']+ot['w2']/2,gt['x']+gt['w']/2)
-        down = tf.maximum(ot['x2']-ot['w2']/2,gt['x']-gt['w']/2)
-        left = tf.maximum(ot['y2']-ot['w2']/2,gt['y']-gt['w']/2)
-        right = tf.minimum(ot['y2']+ot['w2']/2,gt['x']+gt['w']/2)
-        area2 = tf.mul(tf.maximum(up-down,0),tf.maximum(right-left,0))
-
-        # indicatrices 1 i j
-        isResponsible1 = tf.to_float(tf.greater(area1,area2))
-        isResponsible2 = 1.0-isResponsible1
-
-        # first and second terms
-        coordsquare1 = tf.square(ot['x1']-gt['x'])+tf.square(ot['y1']-gt['y'])
-        coordsquare2 = tf.square(ot['x2']-gt['x'])+tf.square(ot['y2']-gt['y'])
-        sizeRootSquare1 = tf.square(tf.sqrt(ot['w1'])-tf.sqrt(gt['w']))\
-            +tf.square(tf.sqrt(ot['h1'])-tf.sqrt(gt['y']))
-        sizeRootSquare2 = tf.square(tf.sqrt(ot['w2'])-tf.sqrt(gt['w']))\
-            +tf.square(tf.sqrt(ot['h2'])-tf.sqrt(gt['y']))
-        term12 = tf.mul(lcoord,tf.reduce_sum(\
-            tf.mul(isResponsible1,coordsquare1+sizeRootSquare1)\
-            +tf.mul(isResponsible2,coordsquare2+sizeRootSquare2)\
-            ,[1,2]))
-
-        # C square
-        IOU1 = tf.truediv(area1,tf.mul(ot['w1'],ot['h1'])+tf.mul(gt['w'],gt['h'])-area1)
-        Csquare1 = tf.square(ot['C1']-tf.mul(gt['hasObject'],IOU1))
-        IOU2 = tf.truediv(area2,tf.mul(ot['w2'],ot['h2'])+tf.mul(gt['w'],gt['h'])-area2)
-        Csquare2 = tf.square(ot['C2']-tf.mul(gt['hasObject'],IOU2))
-
-        # third and fourth terms
-        term34 = tf.reduce_sum(\
-            tf.mul(lobj,tf.mul(gt['hasObject'],tf.mul(isResponsible1,Csquare1)\
-            +tf.mul(isResponsible2,Csquare2)))\
-            +tf.mul(lnoobj,tf.mul(1-gt['hasObject'],tf.mul(isResponsible1,Csquare1)\
-            +tf.mul(isResponsible2,Csquare2)))\
-            ,[1,2])
-
-        # last term
-        probsquare = tf.square(ot['prob']-gt['prob'])
-        term5 = tf.reduce_sum(\
-                    tf.mul(gt['hasObject']\
-                        ,tf.reduce_sum(probsquare,3,keep_dims=True))
-                ,[1,2])
-
-        self.loss = tf.reduce_sum(term12 + term34 + term5,1)
+        # TODO
+        # self.defineloss(self.out)
+        optimizer = self.training_methods[trainer](learning_rate)
+        gradients = optimizer.compute_gradients(self.loss)
+        self.train_op = optimizer.apply_gradients(gradients)
 
 def striped_line(file):
     return file.readline().strip()

@@ -24,7 +24,7 @@ def read_data(self):
             feed_batch = dict()
 
             for j in range(b*batch, b*batch+batch):
-                train_instance = ann[shuffle_idx[j]]
+                train_instance = data[shuffle_idx[j]]
                 inp, new_feed = self.get_image_data(train_instance)
 
                 if inp is None: continue
@@ -41,6 +41,8 @@ def read_data(self):
             x_batch = np.concatenate(x_batch, 0)
             yield x_batch, feed_batch
 
+        print('Finish {} epoch(es)'.format(i + 1))
+
 
 def get_image_data(self, chunk):
     """
@@ -56,53 +58,29 @@ def get_image_data(self, chunk):
     C = len(self.classes)
     classes = self.classes
 
+    image_directory = self.hyperparameters.image_directory
     # preprocess
     jpg = chunk[0]; w, h, allobj_ = chunk[1]
     allobj = deepcopy(allobj_)
-    # !!!!
-    path = os.path.join(self.hyperparameters.image_directory, jpg)
-    img = 0
-    # img = self.preprocess(path, allobj)
+    path = os.path.join(image_directory, jpg)
+    img = self.preprocess(path, allobj)
 
-    # data to fill
-    data = dict()
-    data['prob'] = np.zeros([S,S,C])
-    data['hasObject'] = np.zeros([S,S,1])
-    data['coord'] = np.zeros([S,S,4])
-    data['IOU'] = np.zeros([S,S,1])
-    data['x'] = data['coord'][:,:,0]
-    data['y'] = data['coord'][:,:,1]
-    data['w'] = data['coord'][:,:,2]
-    data['h'] = data['coord'][:,:,3]
-
-    # obj = [class, xmin, ymin, xmax, ymax]
     # Calculate regression target
     cellx = 1. * w / S
     celly = 1. * h / S
-
     for obj in allobj:
-
-        centerx = .5*(obj[1]+obj[3])
-        centery = .5*(obj[2]+obj[4])
-
-        # cx, cy relative positions to case units
+        centerx = .5*(obj[1]+obj[3]) #xmin, xmax
+        centery = .5*(obj[2]+obj[4]) #ymin, ymax
         cx = centerx / cellx
         cy = centery / celly
-
-        # if cx >= S or cy >= S: return None, None
-
+        if cx >= S or cy >= S: return None, None
         obj[3] = float(obj[3]-obj[1]) / w
         obj[4] = float(obj[4]-obj[2]) / h
         obj[3] = np.sqrt(obj[3])
         obj[4] = np.sqrt(obj[4])
-
-        # relative position in case
         obj[1] = cx - np.floor(cx) # centerx
         obj[2] = cy - np.floor(cy) # centery
-
         obj += [int(np.floor(cy) * S + np.floor(cx))]
-
-    # obj = [class, x relative, y relative, sqrt(w)relative, sqrt(h)relative, indexOfCase]
 
     # show(im, allobj, S, w, h, cellx, celly) # unit test
 
@@ -112,14 +90,9 @@ def get_image_data(self, chunk):
     coord = np.zeros([S*S,B,4])
     proid = np.zeros([S*S,C])
     prear = np.zeros([S*S,4])
-
     for obj in allobj:
-
-
         probs[obj[5], :] = [0.] * C
-        probs[obj[5], classes.index(obj[0])] = 1.
-
-
+        probs[obj[5], labels.index(obj[0])] = 1.
         proid[obj[5], :] = [1] * C
         coord[obj[5], :, :] = [obj[1:5]] * B
         prear[obj[5],0] = obj[1] - obj[3]**2 * .5 * S # xleft
@@ -146,16 +119,5 @@ def get_image_data(self, chunk):
         'areas': areas, 'upleft': upleft,
         'botright': botright
     }
-
-    # probabilities
-    print 'probs'+str(loss_feed_val['probs'].shape)
-    # IOU*P(hasObject)
-    print 'confs'+str(loss_feed_val['confs'].shape)
-    
-    print 'coord'+str(loss_feed_val['coord'].shape)
-    print 'areas'+str(loss_feed_val['areas'].shape)
-    print 'proid'+str(loss_feed_val['proid'].shape)
-    print 'upleft'+str(loss_feed_val['upleft'].shape)
-    print 'botright'+str(loss_feed_val['botright'].shape)
 
     return inp_feed_val, loss_feed_val

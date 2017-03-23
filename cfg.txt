@@ -21,7 +21,7 @@ cfg begins by #:
 
 input
 input
-224,224
+224,224,3
 
 convolutional
 conv1_1

@@ -33,7 +33,7 @@ def define_flags():
 
     # parameters for training
     flags.DEFINE_integer ("epoch", 1, "numbers of training turns")
-
+    flags.DEFINE_string ("training_method", "adagrad", "indicate which training methods to use")
     #
     # flags.DEFINE_string ("absolute", 1, "")
     # flags.DEFINE_string ("thresh", 0.3, "")
