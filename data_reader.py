@@ -62,8 +62,8 @@ def get_image_data(self, chunk):
     jpg = chunk[0]; w, h, allobj_ = chunk[1]
     allobj = deepcopy(allobj_)
     path = os.path.join(image_directory, jpg)
-    # img = self.preprocess(path, allobj)
-    img = 0
+    img = self.preprocess(path, allobj)
+
     # Calculate regression target
     cellx = 1. * w / S
     celly = 1. * h / S

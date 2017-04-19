@@ -15,10 +15,10 @@ def conv_layer(self, name, output_size):
 
         input_size = int(self.last_output.get_shape()[-1])
         kernel = tf.Variable(tf.truncated_normal([3,3,input_size,output_size],dtype=tf.float32,
-                            stddev=1e-1),name='weights')
+                stddev=1e-1),name='weights')
         prod = tf.nn.conv2d(self.last_output, kernel, [1, 1, 1, 1], padding='SAME')
         biases = tf.Variable(tf.constant(0.0, shape=[output_size], dtype=tf.float32),
-                            trainable=True, name='biases')
+                trainable=True, name='biases')
         conv = tf.nn.relu(tf.nn.bias_add(prod, biases), name=scope)
 
         self.layers[name] = conv
@@ -62,6 +62,7 @@ def output_layer(self, name):
     B = self.hyperparameters.B
     num_classes = len(self.classes)
     batch_size = self.hyperparameters.batch_size
+    self.layers['output'] = self.last_output
     self.output = self.last_output
     print self.last_output.get_shape()
     # self.last_output = tf.reshape(self.last_output,shape=[batch_size,S,S,30],name=name)

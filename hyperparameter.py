@@ -2,10 +2,13 @@ from tensorflow import flags
 
 def define_flags():
 
+    # session parameters
+    flags.DEFINE_float("gpu", 0.0, "percentage of gpu")
+
     # control parameters
-    flags.DEFINE_boolean ("load_from_vgg16", True, "decide whether load from vgg16 model or previously trained model")
-    flags.DEFINE_string ("action", "train", "to train, to predict, or ?")
-    flags.DEFINE_string("load", "", "how to initialize the net? Either from .weights or a checkpoint, or even from scratch")
+    flags.DEFINE_boolean ("load_from_vgg16", False, "decide whether load from vgg16 model or previously trained model")
+    flags.DEFINE_string ("action", "predict", "to train, to predict, or ?")
+    flags.DEFINE_integer("load", -1, "how to initialize the net? Either from .weights or a checkpoint, or even from scratch")
     flags.DEFINE_integer("save", 2000, "save checkpoint every ? training examples")
     flags.DEFINE_float("learning_rate", 1e-5, "learning rate")
 
@@ -27,6 +30,8 @@ def define_flags():
     flags.DEFINE_string ("ann_directory", "test/ann", "the path to the file that contains classes' names")
     flags.DEFINE_string ("ann_parsed_file", "test/ann/ann_parsed_file", "the path to the file that contains ann_parsed")
     flags.DEFINE_string ("image_directory", "test", "the path to the image directory")
+    flags.DEFINE_string ("checkpoint_directory", "./ckpt/", "the path to save the trained model's weights")
+    flags.DEFINE_string("test", "./test/", "path to testing directory")
 
     # loss constants
     flags.DEFINE_float ("object_scale", 5.0, "" )
@@ -37,10 +42,13 @@ def define_flags():
     # parameters for training
     flags.DEFINE_string ("training_method", "adagrad", "indicate which training methods to use")
     flags.DEFINE_integer ("epoch", 1, "numbers of training turns")
+    flags.DEFINE_integer ("checkpoint", 5, "a save for each ? epoches")
+    flags.DEFINE_string ("keep", 20, "number of most recent training results to save")
 
-    #
+    # parameters for predict
     # flags.DEFINE_string ("absolute", 1, "")
-    # flags.DEFINE_string ("thresh", 0.3, "")
+    flags.DEFINE_boolean("json", True, "Outputs bounding box information in json format.")
+    flags.DEFINE_string ("threshold", 0.3, "threshold for the confidence")
     # flags.DEFINE_string ("random", 0, "")
     # flags.DEFINE_string ("im_side", 224, "")
     return flags

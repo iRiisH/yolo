@@ -6,7 +6,9 @@ import train
 import ann_parse
 import loss
 import data_reader
-# import preprocess
+import image_preprocess
+import predict
+import postprocess
 
 from helper import slicing
 
@@ -41,7 +43,14 @@ class yolo:
     get_image_data = data_reader.get_image_data
 
     # pass preprocess
-    # preprocess = preprocess.preprocess
+    preprocess = image_preprocess.preprocess
+    resize_input = image_preprocess.resize_input
+
+    # predict
+    predict = predict.predict
+
+    # postprocess
+    postprocess = postprocess.postprocess
 
     # a dict of layers in the network
     layers = dict()
@@ -56,11 +65,17 @@ class yolo:
 
         self.hyperparameters = hyperparameters
 
+        self.setupsess()
+
         self.getclasses()
 
         self.buildnet()
 
         self.definetrain()
+
+        self.sess.run(tf.global_variables_initializer())
+
+        self.setupsaver()
 
         load_from_vgg16 = self.hyperparameters.load_from_vgg16
 
@@ -71,9 +86,10 @@ class yolo:
             self.loadFromVgg16()
 
         # #load from the last trained version
-        # else:
-        #
-        #     self.loadFromPreviousVersion()
+        else:
+
+            self.loadFromPreviousVersion()
+
 
     def getclasses(self):
 
@@ -174,11 +190,45 @@ class yolo:
         learning_rate = self.hyperparameters.learning_rate
         self.get_training_methods_set()
 
-        # TODO
         self.defineloss(self.output)
         optimizer = self.training_methods[trainer](learning_rate)
         gradients = optimizer.compute_gradients(self.loss)
         self.train_op = optimizer.apply_gradients(gradients)
+
+    def setupsess(self):
+        cfg = dict({
+            'allow_soft_placement': False,
+            'log_device_placement': False
+        })
+        utility = min(self.hyperparameters.gpu, 1.)
+        if utility > 0.0:
+            # self.say('GPU mode with {} usage'.format(utility))
+            cfg['gpu_options'] = tf.GPUOptions(
+                per_process_gpu_memory_fraction = utility)
+            cfg['allow_soft_placement'] = True
+        else:
+            # self.say('Running entirely on CPU')
+            cfg['device_count'] = {'GPU': 0}
+
+        # if self.FLAGS.train: self.build_train_op()
+
+        self.summary_op = tf.summary.merge_all()
+        # self.writer = tf.summary.FileWriter(self.FLAGS.summary + 'train')
+
+        self.sess = tf.Session(config = tf.ConfigProto(**cfg))
+        # self.sess.run(tf.global_variables_initializer())
+
+        # if not self.ntrain: return
+        # self.saver = tf.train.Saver(tf.global_variables(),
+        #     max_to_keep = self.FLAGS.keep)
+        # if self.FLAGS.load != 0: self.load_from_ckpt()
+
+        # self.writer.add_graph(self.sess.graph)
+
+    def setupsaver(self):
+        self.saver = tf.train.Saver(tf.global_variables(),
+            max_to_keep = self.hyperparameters.keep)
+        # if self.FLAGS.load != 0: self.load_from_ckpt()
 
 def striped_line(file):
     return file.readline().strip()
