@@ -6,9 +6,9 @@ def define_flags():
     flags.DEFINE_float("gpu", 0.0, "percentage of gpu")
 
     # control parameters
-    flags.DEFINE_boolean ("load_from_vgg16", False, "decide whether load from vgg16 model or previously trained model")
+    flags.DEFINE_boolean ("load_from_vgg16", True, "decide whether load from vgg16 model or previously trained model")
     flags.DEFINE_string ("action", "predict", "to train, to predict, or ?")
-    flags.DEFINE_integer("load", -1, "how to initialize the net? Either from .weights or a checkpoint, or even from scratch")
+    flags.DEFINE_integer("load", 0, "how to initialize the net? Either from .weights or a checkpoint, or even from scratch")
     flags.DEFINE_integer("save", 2000, "save checkpoint every ? training examples")
     flags.DEFINE_float("learning_rate", 1e-5, "learning rate")
 
@@ -47,7 +47,7 @@ def define_flags():
 
     # parameters for predict
     # flags.DEFINE_string ("absolute", 1, "")
-    flags.DEFINE_boolean("json", True, "Outputs bounding box information in json format.")
+    flags.DEFINE_boolean("json", False, "Outputs bounding box information in json format.")
     flags.DEFINE_string ("threshold", 0.3, "threshold for the confidence")
     # flags.DEFINE_string ("random", 0, "")
     # flags.DEFINE_string ("im_side", 224, "")

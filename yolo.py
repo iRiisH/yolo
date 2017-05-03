@@ -1,3 +1,4 @@
+import numpy as np
 import tensorflow as tf
 import layers
 import load
@@ -111,6 +112,20 @@ class yolo:
             self.classes.append(line)
 
     def buildnet(self):
+
+        def _to_color(indx, base):
+            """ return (b, r, g) tuple"""
+            base2 = base * base
+            b = 2 - indx / base2
+            r = 2 - (indx % base2) / base
+            g = 2 - (indx % base2) % base
+            return (b * 127, r * 127, g * 127)
+
+        colors = list()
+        base = int(np.ceil(pow(len(self.classes), 1./3)))
+        for x in range(len(self.classes)):
+            colors += [_to_color(x, base)]
+        self.colors = colors
 
         input_init = layers.input_init
         conv_layer = layers.conv_layer

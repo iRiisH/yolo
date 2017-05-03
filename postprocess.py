@@ -3,7 +3,7 @@ import sys
 sys.path.append('/usr/local/lib/python2.7/site-packages')
 import cv2
 import os
-# from cython_utils.cy_yolo_findboxes import yolo_box_constructor
+from cython_utils.cy_yolo_findboxes import yolo_box_constructor
 
 def process_box(self, b, h, w, threshold):
     max_indx = np.argmax(b.probs)
@@ -27,7 +27,7 @@ def findboxes(self, net_out):
     threshold = self.hyperparameters.threshold
 
     boxes = []
-    # boxes = yolo_box_constructor(self, net_out, threshold)
+    boxes = yolo_box_constructor(self, net_out, threshold)
 
     return boxes
 
@@ -63,13 +63,13 @@ def postprocess(self, net_out, im, save = True):
             textBuff += line
             continue
 
-        # cv2.rectangle(imgcv,
-        #     (left, top), (right, bot),
-        #     self.meta['colors'][max_indx], thick)
-        # cv2.putText(
-        #     imgcv, mess, (left, top - 12),
-        #     0, 1e-3 * h, self.meta['colors'][max_indx],
-        #     thick // 3)
+        cv2.rectangle(imgcv,
+            (left, top), (right, bot),
+            self.colors[max_indx], thick)
+        cv2.putText(
+            imgcv, mess, (left, top - 12),
+            0, 1e-3 * h, self.colors[max_indx],
+            thick // 3)
 
 
     if not save: return imgcv

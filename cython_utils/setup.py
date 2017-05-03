@@ -39,21 +39,24 @@ else :
     ext_modules=[
         Extension("nms",
                 sources=["nms.pyx"],
-                libraries=["m"] # Unix-like specific
+                libraries=["m"], # Unix-like specific
+                include_dirs=[numpy.get_include()]
         )
     ]
 
     ext_modules_yolo2=[
         Extension("cy_yolo2_findboxes",
                   sources=["cy_yolo2_findboxes.pyx"],
-                  libraries=["m"] # Unix-like specific
+                  libraries=["m"],# Unix-like specific
+                  include_dirs=[numpy.get_include()]
         )
     ]
 
     ext_modules_yolo=[
         Extension("cy_yolo_findboxes",
                   sources=["cy_yolo_findboxes.pyx"],
-                  libraries=["m"] # Unix-like specific
+                  libraries=["m"], # Unix-like specific
+                  include_dirs=[numpy.get_include()]
         )
     ]
 

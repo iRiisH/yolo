@@ -2,7 +2,7 @@ import numpy as np
 cimport numpy as np
 cimport cython
 from libc.math cimport exp
-from utils.box import BoundBox
+from box import BoundBox
 
 
 
@@ -65,7 +65,7 @@ cdef NMS(float[:, ::1] final_probs , float[:, ::1] final_bbox):
     cdef:
         np.intp_t pred_length,class_length,class_loop,index,index2
 
-  
+
     pred_length = final_bbox.shape[0]
     class_length = final_probs.shape[1]
     for class_loop in range(class_length):
@@ -87,7 +87,7 @@ cdef NMS(float[:, ::1] final_probs , float[:, ::1] final_bbox):
             bb.c = final_bbox[index, 4]
             bb.probs = np.asarray(final_probs[index,:])
             boxes.append(bb)
-  
+
     return boxes
 
 # cdef NMS(float[:, ::1] final_probs , float[:, ::1] final_bbox):
@@ -95,7 +95,7 @@ cdef NMS(float[:, ::1] final_probs , float[:, ::1] final_bbox):
 #     cdef:
 #         np.intp_t pred_length,class_length,class_loop,index,index2, i, j
 
-  
+
 #     pred_length = final_bbox.shape[0]
 #     class_length = final_probs.shape[1]
 
@@ -104,7 +104,7 @@ cdef NMS(float[:, ::1] final_probs , float[:, ::1] final_bbox):
 #         # First box
 #         for i in range(pred_length):
 #             index = order[i]
-#             if final_probs[index, class_loop] == 0.: 
+#             if final_probs[index, class_loop] == 0.:
 #                 continue
 #             # Second box
 #             for j in range(i+1, pred_length):
@@ -115,7 +115,7 @@ cdef NMS(float[:, ::1] final_probs , float[:, ::1] final_bbox):
 #                     final_bbox[index2,0],final_bbox[index2,1],
 #                     final_bbox[index2,2],final_bbox[index2,3]) >= 0.4:
 #                     final_probs[index2, class_loop] = 0.
-                    
+
 #             bb = BoundBox(class_length)
 #             bb.x = final_bbox[index, 0]
 #             bb.y = final_bbox[index, 1]
@@ -124,5 +124,5 @@ cdef NMS(float[:, ::1] final_probs , float[:, ::1] final_bbox):
 #             bb.c = final_bbox[index, 4]
 #             bb.probs = np.asarray(final_probs[index,:])
 #             boxes.append(bb)
-  
+
 #     return boxes

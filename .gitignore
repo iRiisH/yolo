@@ -1,3 +1,5 @@
 vgg16/vgg16_weights.npz
 *.pyc
 ckpt/*
+*.c
+*.so
